@@ -1,7 +1,8 @@
 import streamlit as st
 import google.generativeai as genai
+import html
 
-# CSS ตกแต่งให้ดูน่ารักแบบแชท
+# CSS แชทสวย ๆ
 st.markdown("""
     <style>
     .chat-row {
@@ -21,6 +22,7 @@ st.markdown("""
         border-radius: 18px;
         line-height: 1.4;
         font-size: 15px;
+        white-space: pre-wrap;
     }
     .chat-bubble.user {
         background-color: #C2F4C6;
@@ -44,7 +46,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ตั้งชื่อ + อีโมจิ
+# ข้อมูลผู้พูด
 USER_NAME = "คุณ"
 USER_ICON = "🐵"
 AI_NAME = "AI Sao San Suay"
@@ -72,12 +74,14 @@ try:
             name = AI_NAME
             align = "ai"
 
+        safe_text = html.escape(msg['text'])  # escape text ป้องกันแสดงเป็นโค้ด
+
         st.markdown(f"""
         <div class="chat-row {align}">
             {'<div class="profile-icon">' + icon + '</div>' if align == 'ai' else ''}
             <div>
                 <div class="name">{name}</div>
-                <div class="chat-bubble {align}">{msg['text']}</div>
+                <div class="chat-bubble {align}">{safe_text}</div>
             </div>
             {'<div class="profile-icon">' + icon + '</div>' if align == 'user' else ''}
         </div>
@@ -87,15 +91,14 @@ try:
     prompt = st.chat_input("พิมพ์ข้อความของคุณที่นี่...")
 
     if prompt:
-        # เพิ่มข้อความผู้ใช้
+        # เพิ่มข้อความฝั่งผู้ใช้
         st.session_state.messages.append({"role": "user", "text": prompt})
 
-        # ส่งให้โมเดลตอบ
+        # ส่งข้อความให้โมเดลตอบกลับ
         response = st.session_state.chat.send_message(prompt)
 
-        # เพิ่มข้อความ AI
+        # เพิ่มข้อความของ AI
         st.session_state.messages.append({"role": "ai", "text": response.text})
 
 except Exception as e:
     st.error(f"เกิดข้อผิดพลาด: {e}")
-
