@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 import html
 
-# CSS แชทน่ารัก ๆ
+# 🎨 CSS สไตล์แชท
 st.markdown("""
     <style>
     .chat-row {
@@ -23,6 +23,7 @@ st.markdown("""
         line-height: 1.4;
         font-size: 15px;
         white-space: pre-wrap;
+        word-wrap: break-word;
     }
     .chat-bubble.user {
         background-color: #C2F4C6;
@@ -46,61 +47,32 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ข้อมูลผู้พูด
+# 🧍‍♀️ ตั้งชื่อกับอีโมจิ
 USER_NAME = "คุณ"
 USER_ICON = "🐵"
 AI_NAME = "AI Sao San Suay"
 AI_ICON = "🤖"
 
-# เริ่มการตั้งค่า
+# 🧠 ตั้งค่าโมเดล Gemini
 try:
     key = st.secrets['gemini_api_key']
     genai.configure(api_key=key)
     model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
+    # สร้าง Session ครั้งแรก
     if "chat" not in st.session_state:
         st.session_state.chat = model.start_chat(history=[])
         st.session_state.messages = []
 
+    # หัวข้อ
     st.title("AI SAO SAN SUAY ✨💗")
 
-    # รับข้อความใหม่
-    prompt = st.chat_input("พิมพ์ข้อความของคุณที่นี่...")
-
-    if prompt:
-        # แสดงข้อความของผู้ใช้ "ทันที"
-        safe_prompt = html.escape(prompt)
-        st.markdown(f"""
-        <div class="chat-row user">
-            <div>
-                <div class="name">{USER_NAME}</div>
-                <div class="chat-bubble user">{safe_prompt}</div>
-            </div>
-            <div class="profile-icon">{USER_ICON}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # เก็บใน memory
-        st.session_state.messages.append({"role": "user", "text": prompt})
-
-        # ส่งให้โมเดลตอบ
-        response = st.session_state.chat.send_message(prompt)
-
-        # เก็บข้อความตอบกลับ
-        st.session_state.messages.append({"role": "ai", "text": response.text})
-
-    # แสดงประวัติ (ยกเว้นข้อความล่าสุด เพราะโชว์ไปแล้ว)
-    for msg in st.session_state.messages[:-2 if prompt else None]:
-        if msg["role"] == "user":
-            icon = USER_ICON
-            name = USER_NAME
-            align = "user"
-        else:
-            icon = AI_ICON
-            name = AI_NAME
-            align = "ai"
-
-        safe_text = html.escape(msg['text'])
+    # ➕ แสดงประวัติการสนทนา (ยกเว้น 2 อันล่าสุดถ้ากำลังตอบ)
+    for msg in st.session_state.messages[:-2] if len(st.session_state.messages) >= 2 else st.session_state.messages:
+        align = "user" if msg["role"] == "user" else "ai"
+        name = USER_NAME if align == "user" else AI_NAME
+        icon = USER_ICON if align == "user" else AI_ICON
+        safe_text = html.escape(msg["text"])
 
         st.markdown(f"""
         <div class="chat-row {align}">
@@ -113,8 +85,30 @@ try:
         </div>
         """, unsafe_allow_html=True)
 
-    # ถ้าเพิ่งพิมพ์มา ให้แสดงคำตอบของ AI ต่อท้าย
+    # 📥 พิมพ์คำถามใหม่
+    prompt = st.chat_input("พิมพ์ข้อความของคุณที่นี่...")
+
     if prompt:
+        # แสดงข้อความผู้ใช้ทันที
+        safe_prompt = html.escape(prompt)
+        st.markdown(f"""
+        <div class="chat-row user">
+            <div>
+                <div class="name">{USER_NAME}</div>
+                <div class="chat-bubble user">{safe_prompt}</div>
+            </div>
+            <div class="profile-icon">{USER_ICON}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # เก็บลง session
+        st.session_state.messages.append({"role": "user", "text": prompt})
+
+        # ส่งให้ AI ตอบ
+        response = st.session_state.chat.send_message(prompt)
+        st.session_state.messages.append({"role": "ai", "text": response.text})
+
+        # แสดงคำตอบ AI
         safe_reply = html.escape(response.text)
         st.markdown(f"""
         <div class="chat-row ai">
