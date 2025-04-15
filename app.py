@@ -17,10 +17,10 @@ st.markdown("""
         justify-content: flex-start;
     }
     .chat-bubble {
-        max-width: 90%;
+        max-width: 85%;
         padding: 10px 15px;
         border-radius: 18px;
-        line-height: 1;
+        line-height: 1.3;
         font-size: 14px;
         white-space: pre-wrap;
         word-wrap: break-word;
@@ -36,7 +36,7 @@ st.markdown("""
         border-bottom-left-radius: 0px;
     }
     .profile-icon {
-        font-size: 20px;
+        font-size: 18px;
         margin: 0 8px;
     }
     .name {
