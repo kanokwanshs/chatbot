@@ -73,6 +73,10 @@ try:
     # 🖼️ แสดง Title
     st.title("AI SAO SAN SUAY ✨💗")
 
+    # 🔍 Debugging: Show the content of st.session_state.messages
+    st.write("Session State Messages:")
+    st.write(st.session_state.messages)
+
     # 📜 แสดงประวัติการสนทนา (แสดงทุกข้อความที่เคยแชท)
     for msg in st.session_state.messages:
         align = "user" if msg["role"] == "user" else "ai"
