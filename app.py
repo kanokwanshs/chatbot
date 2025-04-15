@@ -8,7 +8,7 @@ try:
 
     if "chat" not in st.session_state:
         st.session_state.chat = model.start_chat(history=[])
-    st.title('Gemini Pro Test')
+    st.title('AI น้องลิง ผู้ช่วยหมูสาวแสนสวย')
 
     def role_to_streamlit(role: str) -> str:
         if role == 'model':
