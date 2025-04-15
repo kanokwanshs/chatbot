@@ -67,8 +67,8 @@ try:
     # หัวข้อ
     st.title("AI SAO SAN SUAY ✨💗")
 
-    # ➕ แสดงประวัติการสนทนา (ยกเว้น 2 อันล่าสุดถ้ากำลังตอบ)
-    for msg in st.session_state.messages[:-2] if len(st.session_state.messages) >= 2 else st.session_state.messages:
+    # ➕ แสดงประวัติการสนทนาทั้งหมด
+    for msg in st.session_state.messages:
         align = "user" if msg["role"] == "user" else "ai"
         name = USER_NAME if align == "user" else AI_NAME
         icon = USER_ICON if align == "user" else AI_ICON
