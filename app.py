@@ -78,7 +78,7 @@ try:
         align = "user" if msg["role"] == "user" else "ai"
         name = USER_NAME if align == "user" else AI_NAME
         icon = USER_ICON if align == "user" else AI_ICON
-        # แสดงข้อความโดยใช้ st.markdown()
+        # แสดงข้อความโดยใช้ st.markdown() อีกครั้งเพื่อให้ HTML ถูกเรนเดอร์
         st.markdown(f"""
         <div class="chat-row {align}">
             {'<div class="profile-icon">' + icon + '</div>' if align == 'ai' else ''}
