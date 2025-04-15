@@ -1,6 +1,5 @@
 import streamlit as st
 import google.generativeai as genai
-import html
 
 # 🎨 CSS สำหรับมือถือ
 st.markdown("""
@@ -73,14 +72,13 @@ try:
         align = "user" if msg["role"] == "user" else "ai"
         name = USER_NAME if align == "user" else AI_NAME
         icon = USER_ICON if align == "user" else AI_ICON
-        safe_text = html.escape(msg["text"])
-
+        # แสดงข้อความโดยไม่ต้อง escape เพื่อไม่ให้แสดงเป็นโค้ด
         st.markdown(f"""
         <div class="chat-row {align}">
             {'<div class="profile-icon">' + icon + '</div>' if align == 'ai' else ''}
             <div>
                 <div class="name">{name}</div>
-                <div class="chat-bubble {align}">{safe_text}</div>
+                <div class="chat-bubble {align}">{msg["text"]}</div>
             </div>
             {'<div class="profile-icon">' + icon + '</div>' if align == 'user' else ''}
         </div>
@@ -91,12 +89,11 @@ try:
 
     if prompt:
         # แสดง prompt ทันที
-        safe_prompt = html.escape(prompt)
         st.markdown(f"""
         <div class="chat-row user">
             <div>
                 <div class="name">{USER_NAME}</div>
-                <div class="chat-bubble user">{safe_prompt}</div>
+                <div class="chat-bubble user">{prompt}</div>
             </div>
             <div class="profile-icon">{USER_ICON}</div>
         </div>
@@ -110,13 +107,12 @@ try:
         st.session_state.messages.append({"role": "ai", "text": reply_text})
 
         # แสดงคำตอบ AI
-        safe_reply = html.escape(reply_text)
         st.markdown(f"""
         <div class="chat-row ai">
             <div class="profile-icon">{AI_ICON}</div>
             <div>
                 <div class="name">{AI_NAME}</div>
-                <div class="chat-bubble ai">{safe_reply}</div>
+                <div class="chat-bubble ai">{reply_text}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
