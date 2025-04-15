@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 
-# นี่คือ CSS ที่ช่วยจัดตำแหน่งให้เหมือนแชทจริง
+# CSS ตกแต่งให้ดูน่ารักแบบแชท
 st.markdown("""
     <style>
     .chat-row {
@@ -50,7 +50,6 @@ USER_ICON = "🐵"
 AI_NAME = "AI Sao San Suay"
 AI_ICON = "🤖"
 
-# เริ่มใช้งานโมเดล
 try:
     key = st.secrets['gemini_api_key']
     genai.configure(api_key=key)
@@ -62,7 +61,7 @@ try:
 
     st.title("AI SAO SAN SUAY ✨💗")
 
-    # แสดงแชทย้อนหลัง
+    # แสดงข้อความย้อนหลัง
     for msg in st.session_state.messages:
         if msg["role"] == "user":
             icon = USER_ICON
@@ -97,8 +96,6 @@ try:
         # เพิ่มข้อความ AI
         st.session_state.messages.append({"role": "ai", "text": response.text})
 
-        # รีเฟรชหน้าจอเพื่อโชว์ข้อความล่าสุด
-        st.experimental_rerun()
-
 except Exception as e:
     st.error(f"เกิดข้อผิดพลาด: {e}")
+
