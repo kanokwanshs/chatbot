@@ -61,14 +61,15 @@ try:
     genai.configure(api_key=key)
     model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
+    # เช็คว่า session_state มีการเริ่มแชทหรือยัง ถ้ายังเริ่มใหม่
     if "chat" not in st.session_state:
         st.session_state.chat = model.start_chat(history=[])
-        st.session_state.messages = []
+        st.session_state.messages = []  # เก็บประวัติแชท
 
     st.title("AI SAO SAN SUAY ✨💗")
 
-    # แสดงประวัติการสนทนา (ยกเว้น 2 อันล่าสุดถ้าเพิ่งถาม)
-    for msg in st.session_state.messages[:-2] if len(st.session_state.messages) >= 2 else st.session_state.messages:
+    # แสดงประวัติการสนทนา (แสดงทุกข้อความที่เคยแชท)
+    for msg in st.session_state.messages:
         align = "user" if msg["role"] == "user" else "ai"
         name = USER_NAME if align == "user" else AI_NAME
         icon = USER_ICON if align == "user" else AI_ICON
