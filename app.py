@@ -1,14 +1,16 @@
 import streamlit as st
 import google.generativeai as genai
 import html
+from gtts import gTTS
+import io
 
-# 🎨 CSS สไตล์แชท
+# 🎨 CSS สำหรับมือถือ
 st.markdown("""
     <style>
     .chat-row {
         display: flex;
         align-items: flex-start;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
     }
     .chat-row.user {
         justify-content: flex-end;
@@ -17,11 +19,11 @@ st.markdown("""
         justify-content: flex-start;
     }
     .chat-bubble {
-        max-width: 70%;
-        padding: 10px 15px;
+        max-width: 80%;
+        padding: 8px 12px;
         border-radius: 18px;
-        line-height: 1.4;
-        font-size: 15px;
+        line-height: 1.3;
+        font-size: 14px;
         white-space: pre-wrap;
         word-wrap: break-word;
     }
@@ -29,45 +31,45 @@ st.markdown("""
         background-color: #C2F4C6;
         color: black;
         border-bottom-right-radius: 0px;
+        margin-right: 4px;
     }
     .chat-bubble.ai {
         background-color: #F0F0F0;
         color: black;
         border-bottom-left-radius: 0px;
+        margin-left: 4px;
     }
     .profile-icon {
-        font-size: 28px;
-        margin: 0 8px;
+        font-size: 22px;
+        margin: 0 6px;
     }
     .name {
-        font-size: 12px;
+        font-size: 11px;
         margin: 2px 0;
         font-weight: bold;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 🧍‍♀️ ตั้งชื่อกับอีโมจิ
+# ข้อมูลผู้พูด
 USER_NAME = "คุณ"
 USER_ICON = "🐵"
 AI_NAME = "AI Sao San Suay"
 AI_ICON = "🤖"
 
-# 🧠 ตั้งค่าโมเดล Gemini
+# เริ่มการตั้งค่า
 try:
     key = st.secrets['gemini_api_key']
     genai.configure(api_key=key)
     model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
-    # สร้าง Session ครั้งแรก
     if "chat" not in st.session_state:
         st.session_state.chat = model.start_chat(history=[])
         st.session_state.messages = []
 
-    # หัวข้อ
     st.title("AI SAO SAN SUAY ✨💗")
 
-    # ➕ แสดงประวัติการสนทนา (ยกเว้น 2 อันล่าสุดถ้ากำลังตอบ)
+    # แสดงประวัติการสนทนา (ยกเว้น 2 อันล่าสุดถ้าเพิ่งถาม)
     for msg in st.session_state.messages[:-2] if len(st.session_state.messages) >= 2 else st.session_state.messages:
         align = "user" if msg["role"] == "user" else "ai"
         name = USER_NAME if align == "user" else AI_NAME
@@ -85,11 +87,11 @@ try:
         </div>
         """, unsafe_allow_html=True)
 
-    # 📥 พิมพ์คำถามใหม่
+    # พิมพ์คำถามใหม่
     prompt = st.chat_input("พิมพ์ข้อความของคุณที่นี่...")
 
     if prompt:
-        # แสดงข้อความผู้ใช้ทันที
+        # แสดง prompt ทันที
         safe_prompt = html.escape(prompt)
         st.markdown(f"""
         <div class="chat-row user">
@@ -101,15 +103,15 @@ try:
         </div>
         """, unsafe_allow_html=True)
 
-        # เก็บลง session
         st.session_state.messages.append({"role": "user", "text": prompt})
 
-        # ส่งให้ AI ตอบ
+        # ส่งให้ AI
         response = st.session_state.chat.send_message(prompt)
-        st.session_state.messages.append({"role": "ai", "text": response.text})
+        reply_text = response.text
+        st.session_state.messages.append({"role": "ai", "text": reply_text})
 
         # แสดงคำตอบ AI
-        safe_reply = html.escape(response.text)
+        safe_reply = html.escape(reply_text)
         st.markdown(f"""
         <div class="chat-row ai">
             <div class="profile-icon">{AI_ICON}</div>
@@ -119,6 +121,15 @@ try:
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+        # 🎧 แปลงข้อความเป็นเสียง (ใช้ gTTS)
+        tts = gTTS(reply_text, lang='th')  # ใส่ 'en' ถ้าจะพูดอังกฤษ
+        audio_bytes = io.BytesIO()
+        tts.write_to_fp(audio_bytes)
+        audio_bytes.seek(0)
+
+        # 🔊 แสดงเสียง
+        st.audio(audio_bytes, format='audio/mp3')
 
 except Exception as e:
     st.error(f"เกิดข้อผิดพลาด: {e}")
