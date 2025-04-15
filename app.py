@@ -1,8 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
 import html
-from gtts import gTTS
-import io
 
 # 🎨 CSS สำหรับมือถือ
 st.markdown("""
@@ -121,15 +119,6 @@ try:
             </div>
         </div>
         """, unsafe_allow_html=True)
-
-        # 🎧 แปลงข้อความเป็นเสียง (ใช้ gTTS)
-        tts = gTTS(reply_text, lang='th')  # ใส่ 'en' ถ้าจะพูดอังกฤษ
-        audio_bytes = io.BytesIO()
-        tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)
-
-        # 🔊 แสดงเสียง
-        st.audio(audio_bytes, format='audio/mp3')
 
 except Exception as e:
     st.error(f"เกิดข้อผิดพลาด: {e}")
