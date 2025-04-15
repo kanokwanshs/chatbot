@@ -72,8 +72,8 @@ try:
         align = "user" if msg["role"] == "user" else "ai"
         name = USER_NAME if align == "user" else AI_NAME
         icon = USER_ICON if align == "user" else AI_ICON
-        # แสดงข้อความโดยไม่ต้อง escape เพื่อไม่ให้แสดงเป็นโค้ด
-        st.markdown(f"""
+        # แสดงข้อความโดยใช้ st.write() เพื่อไม่ให้แสดงเป็นโค้ด
+        st.write(f"""
         <div class="chat-row {align}">
             {'<div class="profile-icon">' + icon + '</div>' if align == 'ai' else ''}
             <div>
@@ -89,7 +89,7 @@ try:
 
     if prompt:
         # แสดง prompt ทันที
-        st.markdown(f"""
+        st.write(f"""
         <div class="chat-row user">
             <div>
                 <div class="name">{USER_NAME}</div>
@@ -107,7 +107,7 @@ try:
         st.session_state.messages.append({"role": "ai", "text": reply_text})
 
         # แสดงคำตอบ AI
-        st.markdown(f"""
+        st.write(f"""
         <div class="chat-row ai">
             <div class="profile-icon">{AI_ICON}</div>
             <div>
