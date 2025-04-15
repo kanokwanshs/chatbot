@@ -17,11 +17,11 @@ st.markdown("""
         justify-content: flex-start;
     }
     .chat-bubble {
-        max-width: 70%;
+        max-width: 90%;
         padding: 10px 15px;
         border-radius: 18px;
-        line-height: 1.4;
-        font-size: 15px;
+        line-height: 1;
+        font-size: 14px;
         white-space: pre-wrap;
         word-wrap: break-word;
     }
@@ -36,11 +36,11 @@ st.markdown("""
         border-bottom-left-radius: 0px;
     }
     .profile-icon {
-        font-size: 28px;
+        font-size: 20px;
         margin: 0 8px;
     }
     .name {
-        font-size: 12px;
+        font-size: 10px;
         margin: 2px 0;
         font-weight: bold;
     }
