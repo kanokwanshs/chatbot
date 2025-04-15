@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 import html
 
-# CSS แชทสวย ๆ
+# CSS แชทน่ารัก ๆ
 st.markdown("""
     <style>
     .chat-row {
@@ -52,6 +52,7 @@ USER_ICON = "🐵"
 AI_NAME = "AI Sao San Suay"
 AI_ICON = "🤖"
 
+# เริ่มการตั้งค่า
 try:
     key = st.secrets['gemini_api_key']
     genai.configure(api_key=key)
@@ -63,8 +64,33 @@ try:
 
     st.title("AI SAO SAN SUAY ✨💗")
 
-    # แสดงข้อความย้อนหลัง
-    for msg in st.session_state.messages:
+    # รับข้อความใหม่
+    prompt = st.chat_input("พิมพ์ข้อความของคุณที่นี่...")
+
+    if prompt:
+        # แสดงข้อความของผู้ใช้ "ทันที"
+        safe_prompt = html.escape(prompt)
+        st.markdown(f"""
+        <div class="chat-row user">
+            <div>
+                <div class="name">{USER_NAME}</div>
+                <div class="chat-bubble user">{safe_prompt}</div>
+            </div>
+            <div class="profile-icon">{USER_ICON}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # เก็บใน memory
+        st.session_state.messages.append({"role": "user", "text": prompt})
+
+        # ส่งให้โมเดลตอบ
+        response = st.session_state.chat.send_message(prompt)
+
+        # เก็บข้อความตอบกลับ
+        st.session_state.messages.append({"role": "ai", "text": response.text})
+
+    # แสดงประวัติ (ยกเว้นข้อความล่าสุด เพราะโชว์ไปแล้ว)
+    for msg in st.session_state.messages[:-2 if prompt else None]:
         if msg["role"] == "user":
             icon = USER_ICON
             name = USER_NAME
@@ -74,7 +100,7 @@ try:
             name = AI_NAME
             align = "ai"
 
-        safe_text = html.escape(msg['text'])  # escape text ป้องกันแสดงเป็นโค้ด
+        safe_text = html.escape(msg['text'])
 
         st.markdown(f"""
         <div class="chat-row {align}">
@@ -87,18 +113,18 @@ try:
         </div>
         """, unsafe_allow_html=True)
 
-    # รับข้อความใหม่
-    prompt = st.chat_input("พิมพ์ข้อความของคุณที่นี่...")
-
+    # ถ้าเพิ่งพิมพ์มา ให้แสดงคำตอบของ AI ต่อท้าย
     if prompt:
-        # เพิ่มข้อความฝั่งผู้ใช้
-        st.session_state.messages.append({"role": "user", "text": prompt})
-
-        # ส่งข้อความให้โมเดลตอบกลับ
-        response = st.session_state.chat.send_message(prompt)
-
-        # เพิ่มข้อความของ AI
-        st.session_state.messages.append({"role": "ai", "text": response.text})
+        safe_reply = html.escape(response.text)
+        st.markdown(f"""
+        <div class="chat-row ai">
+            <div class="profile-icon">{AI_ICON}</div>
+            <div>
+                <div class="name">{AI_NAME}</div>
+                <div class="chat-bubble ai">{safe_reply}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 except Exception as e:
     st.error(f"เกิดข้อผิดพลาด: {e}")
