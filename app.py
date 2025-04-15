@@ -1,54 +1,56 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Custom CSS for better chat styling
+# นี่คือ CSS ที่ช่วยจัดตำแหน่งให้เหมือนแชทจริง
 st.markdown("""
     <style>
-    .chat-container {
+    .chat-row {
         display: flex;
-        margin: 10px 0;
+        align-items: flex-start;
+        margin-bottom: 12px;
     }
-    .chat-container.user {
+    .chat-row.user {
         justify-content: flex-end;
     }
-    .chat-container.assistant {
+    .chat-row.ai {
         justify-content: flex-start;
     }
     .chat-bubble {
+        max-width: 70%;
         padding: 10px 15px;
         border-radius: 18px;
-        max-width: 75%;
-        word-wrap: break-word;
+        line-height: 1.4;
+        font-size: 15px;
     }
-    .user .chat-bubble {
+    .chat-bubble.user {
         background-color: #C2F4C6;
         color: black;
-        border-bottom-right-radius: 2px;
+        border-bottom-right-radius: 0px;
     }
-    .assistant .chat-bubble {
+    .chat-bubble.ai {
         background-color: #F0F0F0;
         color: black;
-        border-bottom-left-radius: 2px;
+        border-bottom-left-radius: 0px;
     }
-    .profile-pic {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin: 0 10px;
+    .profile-icon {
+        font-size: 28px;
+        margin: 0 8px;
     }
-    .chat-name {
-        font-size: 13px;
+    .name {
+        font-size: 12px;
         margin: 2px 0;
         font-weight: bold;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# URLs to profile pictures (can replace with your own image URLs)
-user_img_url = "https://i.imgur.com/8Km9tLL.png"  # you can change this to your own image
-ai_img_url = "https://i.imgur.com/Vz7jE0O.png"     # AI cute pic
+# ตั้งชื่อ + อีโมจิ
+USER_NAME = "คุณ"
+USER_ICON = "🐵"
+AI_NAME = "AI Sao San Suay"
+AI_ICON = "🤖"
 
+# เริ่มใช้งานโมเดล
 try:
     key = st.secrets['gemini_api_key']
     genai.configure(api_key=key)
@@ -56,38 +58,48 @@ try:
 
     if "chat" not in st.session_state:
         st.session_state.chat = model.start_chat(history=[])
+        st.session_state.messages = []
 
-    st.title('AI SAO SAN SUAY✨💗')
+    st.title("AI SAO SAN SUAY ✨💗")
 
-    def display_message(role, name, avatar, text):
-        alignment = 'user' if role == 'user' else 'assistant'
+    # แสดงแชทย้อนหลัง
+    for msg in st.session_state.messages:
+        if msg["role"] == "user":
+            icon = USER_ICON
+            name = USER_NAME
+            align = "user"
+        else:
+            icon = AI_ICON
+            name = AI_NAME
+            align = "ai"
+
         st.markdown(f"""
-            <div class="chat-container {alignment}">
-                {"<img src='" + avatar + "' class='profile-pic' />" if alignment == 'assistant' else ""}
-                <div>
-                    <div class="chat-name">{name}</div>
-                    <div class="chat-bubble">{text}</div>
-                </div>
-                {"<img src='" + avatar + "' class='profile-pic' />" if alignment == 'user' else ""}
+        <div class="chat-row {align}">
+            {'<div class="profile-icon">' + icon + '</div>' if align == 'ai' else ''}
+            <div>
+                <div class="name">{name}</div>
+                <div class="chat-bubble {align}">{msg['text']}</div>
             </div>
+            {'<div class="profile-icon">' + icon + '</div>' if align == 'user' else ''}
+        </div>
         """, unsafe_allow_html=True)
 
-    # Display previous chat history
-    for msg in st.session_state.chat.history:
-        role = 'user' if msg.role == 'user' else 'assistant'
-        name = "คุณ" if role == 'user' else "AI Sao San Suay ✨"
-        avatar = user_img_url if role == 'user' else ai_img_url
-        display_message(role, name, avatar, msg.parts[0].text)
+    # รับข้อความใหม่
+    prompt = st.chat_input("พิมพ์ข้อความของคุณที่นี่...")
 
-    # Chat input
-    if prompt := st.chat_input("พิมพ์ข้อความที่นี่..."):
-        # Show user message
-        display_message('user', "คุณ", user_img_url, prompt)
-        # Get AI response
+    if prompt:
+        # เพิ่มข้อความผู้ใช้
+        st.session_state.messages.append({"role": "user", "text": prompt})
+
+        # ส่งให้โมเดลตอบ
         response = st.session_state.chat.send_message(prompt)
-        # Show AI message
-        display_message('assistant', "AI Sao San Suay ✨", ai_img_url, response.text)
+
+        # เพิ่มข้อความ AI
+        st.session_state.messages.append({"role": "ai", "text": response.text})
+
+        # รีเฟรชหน้าจอเพื่อโชว์ข้อความล่าสุด
+        st.experimental_rerun()
 
 except Exception as e:
-    st.error(f'เกิดข้อผิดพลาดจ้า: {e}')
+    st.error(f"เกิดข้อผิดพลาด: {e}")
 
